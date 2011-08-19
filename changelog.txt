@@ -1,4 +1,5 @@
-Version 0.4
+Version 1.4 
+* Bumped Eden version to 1.4 to differentiate from Dharma.
 * The website was changed to use a javacript API. Updated addon to parse this
   API instead of the static HTML.
 
