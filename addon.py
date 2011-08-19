@@ -18,7 +18,7 @@ from BeautifulSoup import BeautifulSoup as BS
 from urlparse import urljoin
 
 __plugin_name__ = 'Khan Academy'
-__plugin_id__ = 'plugin.video.plugin.video.khanacademy'
+__plugin_id__ = 'plugin.video.khanacademy'
 
 plugin = Plugin(__plugin_name__, __plugin_id__, __file__)
 
