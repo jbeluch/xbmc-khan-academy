@@ -54,9 +54,8 @@ class Video(object):
         '''Returns a dict suitable for passing to xbmcswift.plugin.add_items'''
         item = {
             'label': self.title,
-            'url': self.mp4_url or self.youtube_url,
+            'path': self.mp4_url or self.youtube_url,
             'is_playable': True,
-            'is_folder': False,
         }
         if self.thumbnail:
             item['thumbnail'] = self.thumbnail
@@ -77,7 +76,7 @@ class Playlist(object):
         '''Returns a dict suitable for passing to xbmcswift.plugin.add_items'''
         return {
             'label': self.title,
-            'url': plugin.url_for('show_category', category=self.title),
+            'path': plugin.url_for('show_category', category=self.title),
             'info': {'plot': self.description},
         }
 
@@ -91,7 +90,7 @@ class Category(object):
         '''Returns a dict suitable for passing to xbmcswift.plugin.add_items'''
         return {
             'label': self.name,
-            'url': plugin.url_for('show_category', category=self.name),
+            'path': plugin.url_for('show_category', category=self.name),
         }
 
 

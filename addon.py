@@ -20,6 +20,7 @@ try:
 except ImportError:
     import simplejson as json
 from urlparse import urljoin
+from datetime import timedelta
 from xbmcswift import Plugin, download_page, xbmc
 from BeautifulSoup import BeautifulSoup as BS
 from resources.lib.khan import KhanData, download_playlists_json
@@ -35,44 +36,56 @@ BASE_URL = 'http://www.khanacademy.org'
 # Ugly temporary hack until xbmcswift is fixed. Need to ensure the basedirs
 # for the cache already exist before we attempt to use it. Also, in pyton 2.4
 # we don't get the lovely os.makedirs :(
-def make_cache_dirs():
-    '''Make plugin_id and .cache dirs for the current plugin.'''
-    def make_if_not_exist(path):
-        print path
-        if not os.path.exists(path):
-            os.mkdir(path)
-    cache_root = xbmc.translatePath('special://profile/addon_data')
-    make_if_not_exist(os.path.join(cache_root, __plugin_id__))
-    make_if_not_exist(os.path.join(cache_root, __plugin_id__, '.cache'))
-make_cache_dirs()
+#def make_cache_dirs():
+    #'''Make plugin_id and .cache dirs for the current plugin.'''
+    #def make_if_not_exist(path):
+        #print path
+        #if not os.path.exists(path):
+            #os.mkdir(path)
+    #cache_root = xbmc.translatePath('special://profile/addon_data')
+    #make_if_not_exist(os.path.join(cache_root, __plugin_id__))
+    #make_if_not_exist(os.path.join(cache_root, __plugin_id__, '.cache'))
+#make_cache_dirs()
 
 
-def full_url(path):
-    '''Returns the full url for the given path. Uses BASE_URL.'''
-    return urljoin(BASE_URL, path)
+#def full_url(path):
+    #'''Returns the full url for the given path. Uses BASE_URL.'''
+    #return urljoin(BASE_URL, path)
 
 
-def htmlify(url):
-    '''Returns a BeautifulSoup object for a give url's response.'''
-    return BS(download_page(url))
+#def htmlify(url):
+    #'''Returns a BeautifulSoup object for a give url's response.'''
+    #return BS(download_page(url))
 
+
+#def get_khan_data():
+    #'''Returns a KhanData instance containg playlist data.
+
+    #Behind the scenes, it checks for a local cached copy first. If the cached
+    #copy's lifetime has not expired it will use the local copy. Otherwise, it
+    #will fetch fresh data from the API and cache it locally.
+    #'''
+    #json_fn = plugin.cache_fn('playlists.json')
+    #timestamp_fn = plugin.cache_fn('playlists.json.ts')
+
+    #_json = get_cached_data(json_fn, timestamp_fn)
+    #if _json is None:
+        #_json = download_playlists_json()
+        #put_cached_data(json.dumps(_json), json_fn, timestamp_fn)
+
+    #return KhanData(_json)
 
 def get_khan_data():
-    '''Returns a KhanData instance containg playlist data.
-
-    Behind the scenes, it checks for a local cached copy first. If the cached
-    copy's lifetime has not expired it will use the local copy. Otherwise, it
-    will fetch fresh data from the API and cache it locally.
-    '''
-    json_fn = plugin.cache_fn('playlists.json')
-    timestamp_fn = plugin.cache_fn('playlists.json.ts')
-
-    _json = get_cached_data(json_fn, timestamp_fn)
-    if _json is None:
-        _json = download_playlists_json()
-        put_cached_data(json.dumps(_json), json_fn, timestamp_fn)
-
-    return KhanData(_json)
+    cache = plugin.get_timed_cache('khan_data', ttl=timedelta(days=1))
+    playlist_json = cache.get('playlist_json')
+    if not playlist_json:
+        print 'Cache miss :('
+        playlist_json = download_playlists_json()
+        cache['playlist_json'] = playlist_json
+        cache.sync()
+    else:
+        print 'cache hit!'
+    return KhanData(playlist_json)
 
 
 KHAN_DATA = get_khan_data()
@@ -88,18 +101,7 @@ def main_menu(category='_root'):
     '''
     items = [item.to_listitem(plugin)
              for item in KHAN_DATA.get_items(category)]
-    return plugin.add_items(items)
-
-
-@plugin.route('/play/<video_slug>/')
-def play_video(video_slug):
-    '''Resolves a video page's url to a playable video url.'''
-    # Videos are both in .mp4 format and youtube. For simplicity's sake just
-    # use mp4 for now.
-    url = 'http://www.khanacademy.org/video/%s' % video_slug
-    html = htmlify(url)
-    a = html.find('a', {'title': 'Download this lesson'})
-    plugin.set_resolved_url(a['href'])
+    return plugin.finish(items)
 
 
 if __name__ == '__main__':
