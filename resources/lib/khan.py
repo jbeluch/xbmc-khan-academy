@@ -1,12 +1,21 @@
+'''
+    resources.lib.khan
+    ~~~~~~~~~~~~~~~~~~
+
+    Classes and functions to transform JSON data into python objects
+    easily usable with xbmcswift.
+
+    :copyright: (c) 2012 by Jonathan Beluch
+    :licese: GPLv3, see LICENSE.txt for more details.
+'''
 try:
     import json
 except ImportError:
     import simplejson as json
-import time
 import urllib
 
 
-# Hierarchical list
+# This url returns the hierarchical list JSON
 API_URL = 'http://www.khanacademy.org/api/v1/playlists/library'
 YOUTUBE_PLUGIN_PTN = 'plugin://plugin.video.youtube/?action=play_video&videoid=%s'
 
@@ -40,6 +49,7 @@ def _try_parse(_json, *args):
 
 
 class Video(object):
+    '''Represents a playable video'''
 
     def __init__(self, _json):
         #self.key_id = _json['key_id']
@@ -48,7 +58,6 @@ class Video(object):
         self.youtube_url = YOUTUBE_PLUGIN_PTN % _json['youtube_id']
         self.mp4_url = _try_parse(_json, 'download_urls', 'mp4')
         self.thumbnail = _try_parse(_json, 'download_urls', 'png')
-
 
     def to_listitem(self, plugin):
         '''Returns a dict suitable for passing to xbmcswift.plugin.add_items'''
@@ -63,6 +72,7 @@ class Video(object):
 
 
 class Playlist(object):
+    '''Represents a playlist of Videos'''
 
     def __init__(self, _json):
         self.title = _json['title']
@@ -82,6 +92,7 @@ class Playlist(object):
 
 
 class Category(object):
+    '''Contains children Playlist items'''
 
     def __init__(self, _json):
         self.name = _json['name']
@@ -94,6 +105,11 @@ class Category(object):
         }
 
 
+def _is_playlist(dct):
+    '''Returns true if the dict contains the key "playlist"'''
+    return 'playlist' in dct.keys()
+
+
 class KhanData(object):
     '''This class repurposes the Khan Academy playlist JSON into more
     convenient data structures.
@@ -103,10 +119,11 @@ class KhanData(object):
         self._items = {}
         self._parse(_json, '_root')
 
-    def _is_playlist(self, item):
-        return 'playlist' in item.keys()
 
     def _create_keys(self, key):
+        '''Initializes a key in self._items to [] if the key doesn't
+        already exist.
+        '''
         if key not in self._items.keys():
             self._items[key] = []
 
@@ -117,7 +134,7 @@ class KhanData(object):
         self._create_keys(current_key)
 
         for item in _json:
-            if self._is_playlist(item):
+            if _is_playlist(item):
                 playlist = Playlist(item['playlist'])
                 self._items[current_key].append(playlist)
                 self._items[item['name']] = playlist
