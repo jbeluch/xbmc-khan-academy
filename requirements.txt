@@ -1,0 +1,3 @@
+xbmcswift2
+# uses .json instead of .json()
+requests=0.13.2
