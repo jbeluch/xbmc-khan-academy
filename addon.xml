@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.khanacademy" name="Khan Academy" version="1.4.2" provider-name="Jonathan Beluch (jbel)">
+<addon id="plugin.video.khanacademy" name="Khan Academy" provider-name="Jonathan Beluch (jbel)" version="1.5.0">
   <requires>
-    <import addon="xbmc.python" version="2.0"/>
-    <import addon="script.module.xbmcswift2" version="1.3.1"/>
-    <import addon="script.module.requests" version="0.0.0"/>
-    <import addon="plugin.video.youtube" version="2.9.1"/>
+    <import addon="xbmc.python" version="2.0" />
+    <import addon="script.module.xbmcswift2" version="1.3.1" />
+    <import addon="script.module.requests" version="0.13.2" />
+    <import addon="plugin.video.youtube" version="3.4.1" />
   </requires>
-  <extension point="xbmc.python.pluginsource" library="addon.py">
+  <extension library="addon.py" point="xbmc.python.pluginsource">
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
