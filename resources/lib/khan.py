@@ -83,7 +83,8 @@ def load_topic_tree():
     key 'root', and then look up each child topic's 'id' in this tree to get
     its children.
     '''
-    _json = requests.get(API_URL).json()
+     # Eden has older version of requests where json is an attr not a method
+    _json = requests.get(API_URL).json
     flattened = _flatten(_json)
 
     tree = {}
