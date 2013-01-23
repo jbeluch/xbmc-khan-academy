@@ -32,7 +32,7 @@ class AddonTest(unittest.TestCase):
             'is_playable': True,
             'thumbnail':
                 'http://s3.amazonaws.com/KA-youtube-converted/eF6zYNzlZKQ.mp4/eF6zYNzlZKQ.png',
-            'info'k {
+            'info': {
                 'plot': u'Factoring Quadratic Expressions',
             }
         }
